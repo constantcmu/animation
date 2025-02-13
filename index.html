@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="3D ASCII Cube Animation">
+    <title>ASCII Animations</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <nav>
+            <ul>
+                <li><button class="nav-btn active" data-view="cube">3D Cube</button></li>
+                <li><button class="nav-btn" data-view="cloth">Cloth Physics</button></li>
+            </ul>
+        </nav>
+    </aside>
+    <div class="content">
+        <div id="cubeView" class="view active">
+            <div class="view-container">
+                <div class="main-view">
+                    <header>
+                        <h1>3D ASCII Cube</h1>
+                    </header>
+                    <main>
+                        <pre id="cubeRenderer"></pre>
+                        <div class="controls">
+                            <button id="startBtn" type="button">Start</button>
+                            <button id="stopBtn" type="button">Stop</button>
+                        </div>
+                    </main>
+                </div>
+                <div class="side-view">
+                    <header>
+                        <h2>Top View</h2>
+                    </header>
+                    <pre id="cubeRendererTop"></pre>
+                </div>
+            </div>
+        </div>
+        <div id="clothView" class="view">
+            <header>
+                <h1>Cloth Simulation</h1>
+            </header>
+            <main>
+                <canvas id="clothCanvas"></canvas>
+                <div class="controls">
+                    <button id="resetCloth" type="button">Reset</button>
+                </div>
+            </main>
+        </div>
+        <footer>
+            <p>ASCII Art Animation Demo</p>
+        </footer>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
