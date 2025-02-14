@@ -49,7 +49,7 @@ class Stick {
 }
 
 export class ClothSimulation {
-    constructor(canvas) {
+    constructor(canvas, is3D = false) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.points = [];
@@ -60,11 +60,15 @@ export class ClothSimulation {
         this.tearDistance = 30; // Distance threshold for tearing
         this.tearForce = 50;    // Force threshold for tearing
         this.tearRadius = 20;    // รัศมีการตัดเส้น
+        this.pointColor = '#fff';
+        this.stickColor = '#646cff';
+        this.is3D = is3D;
+        this.rotation = { x: 0, y: 0, z: 0 };
         this.init();
         this.setupEvents();
     }
 
-    init() {
+    init(pattern = 'default') {
         this.points = [];
         this.sticks = [];
         
@@ -74,15 +78,94 @@ export class ClothSimulation {
         const clothWidth = 20;
         const clothHeight = 15;
 
-        // Create points with only top corners pinned
+        // Create points with different patterns
         for (let y = 0; y <= clothHeight; y++) {
             for (let x = 0; x <= clothWidth; x++) {
                 const point = new Point(startX + x * spacing, startY + y * spacing);
-                // Pin only the top corners (was: if (y === 0 && (x === 0 || x === clothWidth)))
-                if (y === 0 && x === 0) {
-                    point.pinned = true; // Pin top-left corner
-                } else if (y === 0 && x === clothWidth) {
-                    point.pinned = true; // Pin top-right corner
+                if (pattern === 'default') {
+                    if (y === 0 && (x === 0 || x === clothWidth)) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'triangle') {
+                    // Calculate the triangle's height at each row
+                    const rowWidth = clothWidth - Math.floor((y * clothWidth) / clothHeight);
+                    const offsetX = Math.floor((clothWidth - rowWidth) / 2);
+                    
+                    // Only create points within the triangle shape
+                    if (x >= offsetX && x <= offsetX + rowWidth) {
+                        if (y === 0 && (x === 0 || x === clothWidth)) {
+                            point.pinned = true;
+                        }
+                    } else {
+                        continue; // Skip points outside the triangle
+                    }
+                } else if (pattern === 'square' || pattern === 'rectangle') {
+                    if (y === 0 && (x === 0 || x === clothWidth)) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'rhombus') {
+                    if (y === 0 && (x === 0 || x === clothWidth)) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'trapezoid') {
+                    if (y === 0 && (x === 0 || x === clothWidth)) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'pentagon') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'hexagon') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'heptagon') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'octagon') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'nonagon') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'decagon') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'circle' || pattern === 'sphere') {
+                    const centerX = clothWidth / 2;
+                    const centerY = clothHeight / 2;
+                    const radius = Math.min(clothWidth, clothHeight) / 2;
+                    if (Math.hypot(x - centerX, y - centerY) <= radius) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'ellipse') {
+                    const centerX = clothWidth / 2;
+                    const centerY = clothHeight / 2;
+                    const radiusX = clothWidth / 2;
+                    const radiusY = clothHeight / 2;
+                    if ((Math.pow(x - centerX, 2) / Math.pow(radiusX, 2)) + (Math.pow(y - centerY, 2) / Math.pow(radiusY, 2)) <= 1) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'star') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'heart') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === Math.floor(clothHeight / 2) && (x === Math.floor(clothWidth / 2)))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'pyramid') {
+                    if ((y === 0 && (x === 0 || x === clothWidth)) || (y === clothHeight && x === Math.floor(clothWidth / 2))) {
+                        point.pinned = true;
+                    }
+                } else if (pattern === 'cylinder' || pattern === 'prism' || pattern === 'cone') {
+                    if (y === 0 && (x === 0 || x === clothWidth)) {
+                        point.pinned = true;
+                    }
                 }
                 this.points.push(point);
             }
@@ -121,6 +204,13 @@ export class ClothSimulation {
         this.canvas.addEventListener('mouseup', () => {
             this.mouse.down = false;
         });
+
+        if (this.is3D) {
+            this.canvas.addEventListener('wheel', (e) => {
+                this.rotation.y += e.deltaY * 0.01;
+                this.rotation.x += e.deltaX * 0.01;
+            });
+        }
     }
 
     update() {
@@ -166,21 +256,53 @@ export class ClothSimulation {
         
         // Draw sticks
         this.ctx.beginPath();
-        this.ctx.strokeStyle = '#646cff';
+        this.ctx.strokeStyle = this.stickColor;
         this.ctx.lineWidth = 2;
         
         for (const stick of this.sticks) {
-            this.ctx.moveTo(stick.p1.x, stick.p1.y);
-            this.ctx.lineTo(stick.p2.x, stick.p2.y);
+            const p1 = this.rotatePoint(stick.p1);
+            const p2 = this.rotatePoint(stick.p2);
+            this.ctx.moveTo(p1.x, p1.y);
+            this.ctx.lineTo(p2.x, p2.y);
         }
         this.ctx.stroke();
 
         // Draw points
-        this.ctx.fillStyle = '#fff';
+        this.ctx.fillStyle = this.pointColor;
         for (const point of this.points) {
+            const p = this.rotatePoint(point);
             this.ctx.beginPath();
-            this.ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+            this.ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
             this.ctx.fill();
         }
+    }
+
+    rotatePoint(point) {
+        if (!this.is3D) return point;
+
+        const cosX = Math.cos(this.rotation.x);
+        const sinX = Math.sin(this.rotation.x);
+        const cosY = Math.cos(this.rotation.y);
+        const sinY = Math.sin(this.rotation.y);
+        const cosZ = Math.cos(this.rotation.z);
+        const sinZ = Math.sin(this.rotation.z);
+
+        let x = point.x;
+        let y = point.y;
+        let z = point.z || 0;
+
+        // Rotate around X axis
+        let y1 = y * cosX - z * sinX;
+        let z1 = y * sinX + z * cosX;
+
+        // Rotate around Y axis
+        let x1 = x * cosY + z1 * sinY;
+        z1 = -x * sinY + z1 * cosY;
+
+        // Rotate around Z axis
+        x = x1 * cosZ - y1 * sinZ;
+        y = x1 * sinZ + y1 * cosZ;
+
+        return { x, y, z: z1 };
     }
 }
